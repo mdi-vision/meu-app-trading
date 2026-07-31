@@ -27,7 +27,9 @@ from modules.sportmonks_client import (
 
 def _get_saved_token() -> str:
     try:
-        return st.secrets.get("SPORTMONKS_API_TOKEN", "")
+        # Busca tanto por SPORTMONKS_API_KEY quanto por SPORTMONKS_API_TOKEN
+        token = st.secrets.get("SPORTMONKS_API_KEY", "") or st.secrets.get("SPORTMONKS_API_TOKEN", "")
+        return token
     except Exception:
         return ""
 
@@ -74,7 +76,10 @@ def render_stats_panel(team: str, player: str, market: str):
     )
     usar_real = fonte.startswith("Sportmonks")
 
-    sportmonks_token = team_id = player_id = None
+    sportmonks_token = token_salvo
+    team_id = 53
+    player_id = 275
+
     if usar_real:
         with st.expander("🔑 Configuração Sportmonks", expanded=not bool(token_salvo)):
             sportmonks_token = st.text_input(
@@ -82,9 +87,6 @@ def render_stats_panel(team: str, player: str, market: str):
                 help="Carregado automaticamente de .streamlit/secrets.toml quando presente.",
             )
             c1, c2 = st.columns(2)
-            # IDs de exemplo (Celtic / Joe Hart) só para o dashboard já vir funcionando
-            # com dados reais. Troque pelos IDs do time/jogador que você acompanha —
-            # use o ID Finder da Sportmonks (my.sportmonks.com/resources/id-finder).
             team_id = c1.number_input("ID do Time (Sportmonks)", min_value=0, value=53, step=1)
             player_id = c2.number_input("ID do Jogador (Sportmonks)", min_value=0, value=275, step=1)
             st.caption("IDs de exemplo pré-preenchidos (Celtic / Joe Hart). Troque pelos seus.")
